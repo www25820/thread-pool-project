@@ -1,0 +1,12 @@
+# 编译产物
+*.exe
+*.o
+*.obj
+*.out
+
+# 调试文件
+*.pdb
+*.ilk
+
+# IDE
+.vscode/
