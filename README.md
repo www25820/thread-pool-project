@@ -19,24 +19,20 @@
 
 ## 编译
 
-```bash
-g++ -std=c++17 -pthread "threat pool_project.cpp" -o thread_pool
-```
+VS Code 下打开任意 `.cpp` 文件，按 `F5` 自动编译并运行。
 
-VS Code 下配置 `.vscode/tasks.json` 指定编译器路径后按 `Ctrl+Shift+B` 构建。
-
-## 运行
+或命令行：
 
 ```bash
-./thread_pool
+g++ -std=c++17 -pthread -finput-charset=UTF-8 -fexec-charset=GBK main.cpp -o thread_pool
 ```
 
 ## 项目结构
 
 ```text
 threat pool_project/
+├── threatpool.hpp              # ThreadPool 类初版（构造/析构/addTask/条件变量）
 ├── threat pool_project.cpp     # 生产者-消费者原型（条件变量实战）
-├── ThreadPool.hpp              # 线程池核心实现（规划中）
 ├── .vscode/                    # VS Code 调试/编译配置
 ├── .gitignore
 └── README.md
@@ -47,11 +43,11 @@ threat pool_project/
 - [x] `std::condition_variable` 用法（`wait` / `notify_one` / 条件谓词）
 - [x] 生产者-消费者基本模型（1 生产者 + 1 消费者）
 - [x] `std::unique_lock` 与 `std::lock_guard` 选型与锁粒度控制
-- [x] Lambda 表达式与条件谓词
+- [x] Lambda 表达式与条件谓词（`[this]` 捕获成员变量）
 - [x] 虚假唤醒原理与防护
-- [ ] `std::function` + `std::packaged_task` + `std::future` 任务封装
-- [ ] ThreadPool 类：线程数组 + 任务队列 + `submit()` 接口
-- [ ] `submit()` 返回 `std::future`，支持异步获取结果
+- [x] ThreadPool 类：线程数组 + 任务队列 + 优雅退出
+- [ ] `std::function<void()>` 替换 `std::string`，支持任意任务
+- [ ] `submit()` 泛型接口 + `std::future` 异步返回结果
 - [ ] 多生产者/多消费者场景压力测试
 - [ ] 性能对比（裸线程 vs 线程池）
 
