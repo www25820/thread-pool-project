@@ -49,7 +49,7 @@ void Consumer() {
         //   condition 返回 true  → 不睡眠，拿着锁直接往下走
         //   condition 返回 false → 释放锁 → 睡眠 → 被 notify 叫醒
         //                           → 重新拿锁 → 再检查一次 condition
-        cv.wait(lock, [] { return !tasks.empty() || done; });
+        cv.wait(lock, []()->bool { return !tasks.empty() || done; });
         //                         ↑ 有活就干    ↑ 生产者说不干了就退出
 
         // 👇 走到这里说明：锁已拿到 + 条件满足（要么有任务，要么 done）
