@@ -8,7 +8,8 @@
 - **条件变量同步**：`std::condition_variable` 实现线程间等待/通知，任务队列为空时工作线程休眠，不空转
 - **线程安全**：`std::mutex` + `std::lock_guard` 保护共享任务队列，避免数据竞争
 - **细粒度锁**：锁仅保护队列操作，任务执行在锁外进行，减少锁竞争
-- **优雅退出**：支持关闭信号，工作线程消费完剩余任务后安全退出
+- **任意任务执行**：`std::function<void()>` + `std::bind` 万能包装，支持 lambda、函数指针、可调用对象
+- **优雅退出**：析构时 `shutdown` 通知所有线程 + `join` 安全回收
 - **虚假唤醒防护**：`wait` 第二参数（条件谓词）确保仅在条件满足时唤醒
 
 ## 环境要求
@@ -31,7 +32,7 @@ g++ -std=c++17 -pthread -finput-charset=UTF-8 -fexec-charset=GBK main.cpp -o thr
 
 ```text
 threat pool_project/
-├── threatpool.hpp              # ThreadPool 类初版（构造/析构/addTask/条件变量）
+├── threatpool.hpp              # ThreadPool 核心实现（enqueue 泛型接口）
 ├── threat pool_project.cpp     # 生产者-消费者原型（条件变量实战）
 ├── .vscode/                    # VS Code 调试/编译配置
 ├── .gitignore
@@ -46,8 +47,9 @@ threat pool_project/
 - [x] Lambda 表达式与条件谓词（`[this]` 捕获成员变量）
 - [x] 虚假唤醒原理与防护
 - [x] ThreadPool 类：线程数组 + 任务队列 + 优雅退出
-- [ ] `std::function<void()>` 替换 `std::string`，支持任意任务
-- [ ] `submit()` 泛型接口 + `std::future` 异步返回结果
+- [x] `std::function<void()>` + `std::bind` 替换 `std::string`，支持任意任务
+- [x] `enqueue()` 泛型接口，接收任意可调用对象 + 参数
+- [ ] `enqueue()` 返回 `std::future`，支持异步获取结果
 - [ ] 多生产者/多消费者场景压力测试
 - [ ] 性能对比（裸线程 vs 线程池）
 
