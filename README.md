@@ -8,9 +8,10 @@
 - **条件变量同步**：`std::condition_variable` 实现线程间等待/通知，任务队列为空时工作线程休眠，不空转
 - **线程安全**：`std::mutex` + `std::lock_guard` 保护共享任务队列，避免数据竞争
 - **细粒度锁**：锁仅保护队列操作，任务执行在锁外进行，减少锁竞争
-- **任意任务执行**：`std::function<void()>` + `std::bind` 万能包装，支持 lambda、函数指针、可调用对象
-- **优雅退出**：析构时 `shutdown` 通知所有线程 + `join` 安全回收
+- **异步返回结果**：`enqueue()` 返回 `std::future`，调用方阻塞等待任务执行结果
+- **泛型任务提交**：`std::function<void()>` + `std::packaged_task` + `std::bind`，支持任意可调用对象
 - **虚假唤醒防护**：`wait` 第二参数（条件谓词）确保仅在条件满足时唤醒
+- **优雅退出**：析构时 `notify_all` + `join`，等所有线程消费完剩余任务后安全回收
 
 ## 环境要求
 
@@ -49,9 +50,7 @@ threat pool_project/
 - [x] ThreadPool 类：线程数组 + 任务队列 + 优雅退出
 - [x] `std::function<void()>` + `std::bind` 替换 `std::string`，支持任意任务
 - [x] `enqueue()` 泛型接口，接收任意可调用对象 + 参数
-- [ ] `enqueue()` 返回 `std::future`，支持异步获取结果
-- [ ] 多生产者/多消费者场景压力测试
-- [ ] 性能对比（裸线程 vs 线程池）
+- [x] `enqueue()` 返回 `std::future`，支持异步获取结果
 
 ## 要点
 
@@ -63,6 +62,8 @@ threat pool_project/
 | 虚假唤醒 | 操作系统可能无故唤醒阻塞线程，条件谓词是标准防护手段 |
 | `unique_lock` vs `lock_guard` | 前者可手动 `unlock()`/`lock()`，配合条件变量必须使用前者；后者仅 RAII 自动管理 |
 | 原子唤醒语义 | `wait` 内部「释放锁 → 进入等待队列」是原子的，保证 `notify` 不丢失 |
+| `packaged_task` + `future` | `packaged_task` 包装函数，执行后自动设值；`future.get()` 阻塞等待结果 |
+| `shared_ptr` 的作用 | `packaged_task` 不可拷贝，用 `shared_ptr` 包住才能在 lambda 间传递 |
 
 ## 参考资料
 
